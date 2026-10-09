@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#07110e">
+  <title>Админка — Холодная гора</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="adm">
+  <div class="adm-wrap">
+    <header class="adm-top">
+      <h1>Холодная гора · Админка</h1>
+      <button class="btn btn-sm btn-ghost" id="logout" type="button" hidden>Выйти</button>
+    </header>
+
+    <form class="adm-login" id="login">
+      <p class="muted">Введите токен администратора (переменная ADMIN_TOKEN на сервере).</p>
+      <div class="adm-row">
+        <input type="password" id="token" autocomplete="current-password" placeholder="Токен" aria-label="Токен администратора" required>
+        <button class="btn" type="submit">Войти</button>
+      </div>
+      <p class="form-error" id="loginError" role="alert" hidden></p>
+    </form>
+
+    <main id="panel" hidden>
+      <nav class="adm-tabs" role="tablist" aria-label="Разделы">
+        <button type="button" role="tab" aria-selected="true" data-tab="bookings">Брони <span class="adm-count" id="cBookings"></span></button>
+        <button type="button" role="tab" aria-selected="false" data-tab="requests">Заявки <span class="adm-count" id="cRequests"></span></button>
+        <button type="button" role="tab" aria-selected="false" data-tab="blocks">Закрыть даты</button>
+        <button type="button" role="tab" aria-selected="false" data-tab="scores">Рекорды игры</button>
+      </nav>
+
+      <section id="tab-bookings">
+        <label class="check adm-filter"><input type="checkbox" id="showAll"><span>Показывать отменённые и прошедшие</span></label>
+        <div id="bookingsList" class="adm-list"></div>
+      </section>
+      <section id="tab-requests" hidden><div id="requestsList" class="adm-list"></div></section>
+      <section id="tab-blocks" hidden>
+        <form class="adm-block-form" id="blockForm">
+          <p class="muted">Закройте даты, когда домик занят вне сайта (ремонт, свои гости, бронь по телефону).</p>
+          <div class="adm-row">
+            <select id="blockHouse" aria-label="Домик"></select>
+            <label>Заезд <input type="date" id="blockFrom" required></label>
+            <label>Выезд <input type="date" id="blockTo" required></label>
+          </div>
+          <div class="adm-row">
+            <input type="text" id="blockNote" placeholder="Причина (видна только вам)" maxlength="80">
+            <button class="btn" type="submit">Закрыть даты</button>
+          </div>
+        </form>
+      </section>
+      <section id="tab-scores" hidden>
+        <p class="muted">Если в таблице лидеров появилось неприемлемое имя — удалите запись.</p>
+        <div id="scoresList" class="adm-list"></div>
+      </section>
+    </main>
+  </div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <script type="module" src="/admin/admin.js"></script>
+</body>
+</html>

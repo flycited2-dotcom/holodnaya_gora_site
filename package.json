@@ -1,0 +1,14 @@
+{
+  "name": "holodnaya-gora-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сайт базы отдыха «Холодная гора»: стендовая стрельба, домики, игра, афиша",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "dev": "node --watch server/index.mjs",
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}

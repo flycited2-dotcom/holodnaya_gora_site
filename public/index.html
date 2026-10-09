@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Холодная гора — стендовая стрельба и домики в горах Крыма</title>
+  <meta name="description" content="База отдыха «Холодная гора» в Белогорском районе Крыма: стендовая стрельба по тарелкам с инструктором, уютные домики в лесу, турниры и праздники. Онлайн-бронирование.">
+  <meta name="theme-color" content="#07110e">
+  <meta name="color-scheme" content="dark">
+  <meta name="metrika-id" content="{{metrikaId}}">
+  <link rel="canonical" href="{{canonical}}/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="{{siteName}}">
+  <meta property="og:title" content="Холодная гора — стендовая стрельба и домики в горах Крыма">
+  <meta property="og:description" content="Стрельба по тарелкам с инструктором, домики в лесу, турниры и праздники. Бронируйте онлайн.">
+  <meta property="og:url" content="{{canonical}}/">
+
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<!--DRAFT_BANNER-->
+<a class="skip-link" href="#main">Перейти к содержимому</a>
+
+<header class="site-header" id="header">
+  <div class="wrap bar">
+    <a class="brand" href="#top" aria-label="Холодная гора — наверх">
+      <svg class="brand-mark" viewBox="0 0 40 24" aria-hidden="true">
+        <ellipse cx="20" cy="15" rx="18" ry="7" fill="#b84305"/>
+        <ellipse cx="20" cy="12" rx="18" ry="8" fill="#ff6a1a"/>
+        <ellipse cx="20" cy="10.2" rx="9" ry="3.2" fill="#ffb066"/>
+      </svg>
+      <span>Холодная гора</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Основное">
+      <a href="#shooting">Стрельба</a>
+      <a href="#game">Тир онлайн</a>
+      <a href="#school">Школа стенда</a>
+      <a href="#houses">Домики</a>
+      <a href="#events">Афиша</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <a class="header-phone" href="tel:{{phoneHref}}">{{phone}}</a>
+    <a class="btn btn-sm" href="#houses">Забронировать</a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Открыть меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="top">
+    <div class="hero-scene" id="heroScene" aria-hidden="true"></div>
+    <div class="hero-clay-layer" id="heroClay" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <p class="eyebrow">База отдыха «Холодная гора» · Белогорский район, Крым</p>
+      <h1>Точный выстрел.<br><span class="accent">Тихий лес.</span></h1>
+      <p class="lead">Стендовая стрельба по тарелкам с инструктором и уютные домики посреди горного леса. Приезжайте пострелять — оставайтесь отдохнуть.</p>
+      <div class="hero-cta">
+        <button class="btn btn-lg" type="button" data-request="shooting">Записаться на стрельбу</button>
+        <a class="btn btn-lg btn-ghost" href="#houses">Забронировать домик</a>
+        <a class="btn btn-lg btn-text" href="#game"><span aria-hidden="true">🎯</span> Сыграть в тарелочки</a>
+      </div>
+      <a class="next-event" id="nextEvent" href="#events" hidden></a>
+    </div>
+    <a class="scroll-hint" href="#shooting" aria-label="Прокрутить вниз"><span></span></a>
+  </section>
+
+  <!-- ===================== СТРЕЛЬБА ===================== -->
+  <section class="section" id="shooting">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">01 · Стендовая стрельба</span>
+        <h2>Попробуйте то, ради чего сюда приезжают</h2>
+        <p>Стендовая стрельба — это азарт, концентрация и чистое удовольствие, когда оранжевая тарелка рассыпается в пыль. Никакого опыта не нужно: инструктор всё покажет и будет рядом на каждом выстреле.</p>
+      </header>
+
+      <div class="cards-3" id="packages" aria-live="polite">
+        <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      </div>
+
+      <ol class="steps reveal">
+        <li><b>Запись</b><span>Оставьте заявку или позвоните — подберём время и пакет.</span></li>
+        <li><b>Инструктаж</b><span>Короткий рассказ о безопасности и о том, как держать ружьё.</span></li>
+        <li><b>Первые тарелки</b><span>Стреляете под присмотром инструктора, он поправляет стойку и прицел.</span></li>
+        <li><b>Отдых</b><span>Чай, мангал, домик в лесу — всё рядом, никуда ехать не нужно.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== ИГРА ===================== -->
+  <section class="section section-alt" id="game">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">02 · Тир онлайн</span>
+        <h2>Тарелочки: 25 выстрелов</h2>
+        <p>Это один раунд, как на настоящем стенде. Тарелки вылетают из «машинки» и уходят вдаль — чем дальше и точнее серия, тем больше очков. Попали в таблицу лидеров — приезжайте повторить вживую.</p>
+      </header>
+
+      <div class="game-layout reveal">
+        <div class="game-stage" id="gameStage">
+          <canvas id="gameCanvas" role="img" aria-label="Игра «Тарелочки»: нажимайте на летящие оранжевые тарелки, чтобы стрелять. Управление с клавиатуры: стрелки — прицел, пробел — выстрел."></canvas>
+
+          <div class="game-hud" id="gameHud" aria-hidden="true">
+            <div class="hud-item"><span>Очки</span><b id="hudScore">0</b></div>
+            <div class="hud-item"><span>Тарелка</span><b id="hudTarget">0 / 25</b></div>
+            <div class="hud-item"><span>Попаданий</span><b id="hudHits">0</b></div>
+            <div class="hud-item hud-combo" id="hudComboWrap"><span>Серия</span><b id="hudCombo">×1</b></div>
+          </div>
+          <div class="game-tools">
+            <button class="icon-btn" id="btnPause" type="button" aria-label="Пауза" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>
+            </button>
+            <button class="icon-btn" id="btnSound" type="button" aria-label="Звук включён" aria-pressed="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" fill="currentColor"/><path class="snd-on" d="M15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><path class="snd-off" d="M16 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+
+          <div class="game-overlay" id="gameOverlay"></div>
+          <div class="sr-only" id="gameLive" aria-live="polite"></div>
+        </div>
+
+        <aside class="board" aria-labelledby="boardTitle">
+          <h3 id="boardTitle">Таблица лидеров</h3>
+          <div class="seg" role="tablist" aria-label="Период">
+            <button type="button" role="tab" aria-selected="true" data-board="month">Этот месяц</button>
+            <button type="button" role="tab" aria-selected="false" data-board="allTime">За всё время</button>
+          </div>
+          <ol class="board-list" id="boardList"><li class="board-empty">Загрузка…</li></ol>
+          <p class="board-me" id="boardMe" hidden></p>
+          <p class="hint">Игра для удовольствия. Управление: мышь или касание — выстрел; с клавиатуры — стрелки и пробел, <kbd>P</kbd> — пауза.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ШКОЛА СТЕНДА ===================== -->
+  <section class="section" id="school">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">03 · Школа стенда</span>
+        <h2>Как это устроено — коротко и по делу</h2>
+        <p>Если вы никогда не стреляли по тарелкам, начните отсюда. Пять минут чтения — и на стенде вы уже будете понимать, что происходит.</p>
+      </header>
+
+      <div class="school reveal">
+        <div class="tabs" role="tablist" aria-label="Темы школы стенда" id="schoolTabs">
+          <button type="button" role="tab" id="tab-what" aria-controls="panel-what" aria-selected="true">Что это</button>
+          <button type="button" role="tab" id="tab-trap" aria-controls="panel-trap" aria-selected="false" tabindex="-1">Трап</button>
+          <button type="button" role="tab" id="tab-skeet" aria-controls="panel-skeet" aria-selected="false" tabindex="-1">Скит</button>
+          <button type="button" role="tab" id="tab-sporting" aria-controls="panel-sporting" aria-selected="false" tabindex="-1">Спортинг</button>
+          <button type="button" role="tab" id="tab-safety" aria-controls="panel-safety" aria-selected="false" tabindex="-1">Безопасность</button>
+          <button type="button" role="tab" id="tab-first" aria-controls="panel-first" aria-selected="false" tabindex="-1">Первый раз</button>
+        </div>
+
+        <div class="tab-panels">
+          <article class="panel" role="tabpanel" id="panel-what" aria-labelledby="tab-what">
+            <div class="panel-text">
+              <h3>Стрельба по летящей мишени</h3>
+              <p>Стрелок стоит на огороженной площадке, а специальные метательные машинки запускают в воздух «тарелки» — глиняные диски диаметром около 110 мм и весом около 100 граммов. Диск делают из известняковой крошки и смолы, поэтому при попадании он рассыпается облачком оранжевой пыли — сразу видно, что вы попали.</p>
+              <p>Стреляют из гладкоствольного ружья, чаще всего 12-го калибра, дробью. Дробь разлетается «облаком», поэтому целиться нужно не в тарелку, а немного впереди неё — туда, где она окажется через долю секунды. Это и делает стенд интересным: нужны не сила, а глазомер, ритм и спокойствие.</p>
+              <ul class="ticks">
+                <li>Подходит новичкам, взрослым и подросткам (дети — по согласованию заранее)</li>
+                <li>Физическая подготовка не нужна</li>
+                <li>Это олимпийский вид спорта, но с него можно просто начать «ради удовольствия»</li>
+              </ul>
+            </div>
+            <div class="panel-visual fact-card" id="factCard" aria-live="off">
+              <span class="kicker">Знаете ли вы?</span>
+              <p id="factText"></p>
+              <button class="btn btn-sm btn-ghost" type="button" id="factNext">Ещё факт</button>
+            </div>
+          </article>
+
+          <article class="panel" role="tabpanel" id="panel-trap" aria-labelledby="tab-trap" hidden>
+            <div class="panel-text">
+              <h3>Трап — тарелка улетает от вас</h3>
+              <p>Впереди, в траншее, спрятаны машинки. Вы заранее не знаете, под каким углом и на какой высоте вылетит тарелка, — она всегда уходит от стрелка вперёд, в разные стороны. Задача — быстро взять мишень на мушку и успеть выстрелить, пока она не слишком далеко.</p>
+              <ul class="ticks">
+                <li>Пять номеров (позиций), стрелки переходят с номера на номер</li>
+                <li>Раунд — 25 тарелок</li>
+                <li>По каждой тарелке разрешено до двух выстрелов</li>
+              </ul>
+              <p class="hint">Для новичка трап — самый понятный старт: тарелка летит прямо «в глаза» и не пересекает поле.</p>
+            </div>
+            <figure class="panel-visual">
+              <svg class="diagram" viewBox="0 0 400 270" role="img" aria-label="Схема трапа: из траншеи с машинками тарелки веером улетают от стрелков, стоящих в линию из пяти позиций">
+                <rect x="165" y="18" width="70" height="26" rx="5" class="d-fill"/>
+                <text x="200" y="35" class="d-label" text-anchor="middle">траншея</text>
+                <g class="d-flight">
+                  <path d="M200 44 C 120 90, 70 140, 52 205"/>
+                  <path d="M200 44 C 160 100, 130 150, 120 212"/>
+                  <path d="M200 44 C 198 110, 200 160, 200 214"/>
+                  <path d="M200 44 C 240 100, 270 150, 280 212"/>
+                  <path d="M200 44 C 280 90, 330 140, 348 205"/>
+                </g>
+                <line x1="40" y1="236" x2="360" y2="236" class="d-line"/>
+                <g class="d-station">
+                  <circle cx="110" cy="236" r="9"/><circle cx="155" cy="236" r="9"/><circle cx="200" cy="236" r="9"/><circle cx="245" cy="236" r="9"/><circle cx="290" cy="236" r="9"/>
+                </g>
+                <g class="d-num" text-anchor="middle"><text x="110" y="240">1</text><text x="155" y="240">2</text><text x="200" y="240">3</text><text x="245" y="240">4</text><text x="290" y="240">5</text></g>
+                <text x="330" y="262" class="d-label" text-anchor="end">стрелки · около 15 м до траншеи</text>
+              </svg>
+              <figcaption>Тарелки веером уходят от стрелка</figcaption>
+            </figure>
+          </article>
+
+          <article class="panel" role="tabpanel" id="panel-skeet" aria-labelledby="tab-skeet" hidden>
+            <div class="panel-text">
+              <h3>Скит — тарелка пересекает поле</h3>
+              <p>Тарелки вылетают из двух башен — высокой и низкой — и летят навстречу друг другу по одной и той же линии. Вы стреляете с восьми позиций по дуге, поэтому угол «подводки» всё время меняется: то тарелка летит прямо к вам, то уходит вбок, то пересекает путь поперёк.</p>
+              <ul class="ticks">
+                <li>Восемь позиций: семь по дуге и одна по центру</li>
+                <li>Раунд — 25 тарелок, на каждую один выстрел</li>
+                <li>На части позиций бывают «дубли» — две тарелки сразу</li>
+              </ul>
+              <p class="hint">Скит придумали охотники, чтобы тренироваться вне сезона. Сегодня он олимпийский, а выглядит эффектнее всех.</p>
+            </div>
+            <figure class="panel-visual">
+              <svg class="diagram" viewBox="0 0 400 270" role="img" aria-label="Схема скита: две башни по краям полукруга, восемь стрелковых позиций и пересекающиеся траектории тарелок">
+                <path d="M70 200 A 130 130 0 0 1 330 200" class="d-line" fill="none"/>
+                <line x1="70" y1="200" x2="330" y2="200" class="d-line d-dash"/>
+                <g class="d-flight">
+                  <path d="M70 188 C 150 120, 250 120, 330 188"/>
+                  <path d="M330 196 C 250 150, 150 150, 70 196" class="d-flight-2"/>
+                </g>
+                <rect x="44" y="196" width="40" height="26" rx="5" class="d-fill"/>
+                <rect x="316" y="196" width="40" height="26" rx="5" class="d-fill"/>
+                <text x="64" y="239" class="d-label" text-anchor="middle">высокая</text>
+                <text x="336" y="239" class="d-label" text-anchor="middle">низкая</text>
+                <g class="d-station">
+                  <circle cx="78" cy="166" r="9"/><circle cx="96" cy="124" r="9"/><circle cx="135" cy="88" r="9"/><circle cx="200" cy="72" r="9"/><circle cx="265" cy="88" r="9"/><circle cx="304" cy="124" r="9"/><circle cx="322" cy="166" r="9"/><circle cx="200" cy="200" r="9"/>
+                </g>
+                <g class="d-num" text-anchor="middle"><text x="78" y="170">1</text><text x="96" y="128">2</text><text x="135" y="92">3</text><text x="200" y="76">4</text><text x="265" y="92">5</text><text x="304" y="128">6</text><text x="322" y="170">7</text><text x="200" y="204">8</text></g>
+              </svg>
+              <figcaption>Две линии полёта пересекаются над центром поля</figcaption>
+            </figure>
+          </article>
+
+          <article class="panel" role="tabpanel" id="panel-sporting" aria-labelledby="tab-sporting" hidden>
+            <div class="panel-text">
+              <h3>Спортинг — «гольф» со стрельбой</h3>
+              <p>Самая «охотничья» дисциплина. Вы идёте по трассе от станции к станции, а на каждой машинки запускают тарелки по-разному: поперёк, навстречу, сверху вниз, а иногда по земле — как бегущего зайца. Размер и скорость тарелок тоже меняются.</p>
+              <ul class="ticks">
+                <li>Трасса из нескольких станций, каждая — со своей «загадкой»</li>
+                <li>Обычно от 50 до 100 тарелок за круг</li>
+                <li>Больше всего похоже на реальную охоту — и самая весёлая компания</li>
+              </ul>
+              <p class="hint">Хорошо подходит для корпоративов и командных соревнований: маршрут можно проходить группой.</p>
+            </div>
+            <figure class="panel-visual">
+              <svg class="diagram" viewBox="0 0 400 270" role="img" aria-label="Схема спортинга: трасса со станциями и разными траекториями тарелок">
+                <path d="M30 220 C 90 160, 120 230, 180 190 S 280 120, 370 160" class="d-line d-dash" fill="none"/>
+                <g class="d-flight">
+                  <path d="M70 160 C 110 70, 160 60, 200 110"/>
+                  <path d="M180 190 C 210 120, 270 70, 330 90"/>
+                  <path d="M300 210 C 330 160, 360 120, 372 60"/>
+                </g>
+                <path d="M110 232 L 250 232" class="d-flight d-ground"/>
+                <circle cx="250" cy="232" r="5" class="d-clay"/>
+                <g class="d-station">
+                  <circle cx="60" cy="196" r="9"/><circle cx="180" cy="190" r="9"/><circle cx="300" cy="150" r="9"/>
+                </g>
+                <g class="d-num" text-anchor="middle"><text x="60" y="200">1</text><text x="180" y="194">2</text><text x="300" y="154">3</text></g>
+                <text x="130" y="254" class="d-label">«заяц» по земле</text>
+              </svg>
+              <figcaption>Разные траектории на каждой станции</figcaption>
+            </figure>
+          </article>
+
+          <article class="panel" role="tabpanel" id="panel-safety" aria-labelledby="tab-safety" hidden>
+            <div class="panel-text">
+              <h3>Безопасность — важнее всего</h3>
+              <p>Стенд — безопасный спорт, потому что правила простые и выполняются всегда. Инструктор напомнит о них перед стартом, но знать их полезно заранее.</p>
+              <ul class="ticks ticks-warn">
+                <li><b>Ствол — всегда в безопасную сторону.</b> Даже незаряженное ружьё никогда не направляют на людей.</li>
+                <li><b>Палец — вне спуска,</b> пока вы не готовы стрелять по тарелке.</li>
+                <li><b>Ружьё открыто и разряжено,</b> когда вы идёте между позициями или ждёте очереди.</li>
+                <li><b>Заряжаем только на позиции</b> и только по команде инструктора.</li>
+                <li><b>Наушники и защитные очки — обязательно</b> для всех, кто находится рядом со стрельбой.</li>
+                <li><b>Никакого алкоголя</b> до и во время стрельбы.</li>
+              </ul>
+            </div>
+            <figure class="panel-visual safety-visual" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="safety-icon">
+                <circle cx="100" cy="100" r="86" class="s-ring"/>
+                <path d="M62 112 h76 M100 112 v-34" class="s-line"/>
+                <path d="M70 80 q30 -34 60 0" class="s-line"/>
+                <circle cx="100" cy="132" r="5" class="s-dot"/>
+                <path d="M60 150 h80" class="s-line"/>
+              </svg>
+            </figure>
+          </article>
+
+          <article class="panel" role="tabpanel" id="panel-first" aria-labelledby="tab-first" hidden>
+            <div class="panel-text">
+              <h3>Ваш первый визит</h3>
+              <ol class="steps-list">
+                <li><b>Запишитесь заранее.</b> Так мы подготовим стенд и инструктора на нужное время.</li>
+                <li><b>Оденьтесь по погоде.</b> Закрытая обувь, удобная одежда без болтающихся деталей, кепка и тёплый слой — в горах бывает прохладно даже летом.</li>
+                <li><b>Возьмите документ.</b> Администратор подскажет, понадобится ли он.</li>
+                <li><b>Приезжайте за 15 минут.</b> Успеете выдохнуть, выпить чаю и пройти инструктаж без спешки.</li>
+                <li><b>Не бойтесь промахов.</b> У всех новичков первые тарелки пролетают мимо — уже к десятой становится заметно лучше.</li>
+              </ol>
+              <div class="panel-cta"><button class="btn" type="button" data-request="shooting">Записаться на первый раз</button></div>
+            </div>
+            <figure class="panel-visual checklist-visual">
+              <div class="checklist" aria-hidden="true">
+                <span>✔ Закрытая обувь</span><span>✔ Удобная одежда</span><span>✔ Кепка / шапка</span><span>✔ Хорошее настроение</span>
+              </div>
+            </figure>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ДОМИКИ ===================== -->
+  <section class="section section-alt" id="houses">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">04 · Домики</span>
+        <h2>Оставайтесь на ночь — лес рядом</h2>
+        <p>Отдельные домики среди деревьев: утром — тишина и воздух, днём — стенд, вечером — мангал и чай на террасе. Выберите домик и даты — заявка придёт администратору сразу.</p>
+      </header>
+
+      <div class="cards-3 house-cards" id="houseCards" role="radiogroup" aria-label="Выберите домик">
+        <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      </div>
+
+      <div class="booking reveal" id="booking">
+        <div class="booking-main">
+          <div class="b-block">
+            <h3><span class="b-num">2</span> Выберите даты <small id="bookingHouseName"></small></h3>
+            <div class="calendar" id="calendar" aria-live="polite"></div>
+            <p class="hint" id="dateHint">Сначала выберите домик, затем нажмите дату заезда и дату выезда.</p>
+          </div>
+
+          <form class="b-block" id="bookingForm" novalidate>
+            <h3><span class="b-num">3</span> Гости и контакты</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="bkGuests">Гостей</label>
+                <div class="stepper" id="guestStepper">
+                  <button type="button" data-step="-1" aria-label="Меньше гостей">−</button>
+                  <input id="bkGuests" name="guests" type="number" min="1" max="6" value="2" inputmode="numeric">
+                  <button type="button" data-step="1" aria-label="Больше гостей">+</button>
+                </div>
+                <p class="field-error" data-error="guests"></p>
+              </div>
+              <div class="field">
+                <label for="bkName">Ваше имя</label>
+                <input id="bkName" name="name" type="text" autocomplete="name" maxlength="80" required>
+                <p class="field-error" data-error="name"></p>
+              </div>
+              <div class="field">
+                <label for="bkPhone">Телефон</label>
+                <input id="bkPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 978 123-45-67" required>
+                <p class="field-error" data-error="phone"></p>
+              </div>
+              <div class="field field-wide">
+                <label for="bkComment">Пожелания <span class="opt">необязательно</span></label>
+                <textarea id="bkComment" name="comment" rows="2" maxlength="1000" placeholder="Время приезда, дети, хотим на стрельбу…"></textarea>
+              </div>
+            </div>
+            <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="check">
+              <input type="checkbox" name="consent" required>
+              <span>Согласен на обработку персональных данных в соответствии с <a href="/privacy.html" target="_blank" rel="noopener">политикой</a></span>
+            </label>
+            <p class="field-error" data-error="consent"></p>
+            <p class="form-error" id="bookingError" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <aside class="booking-summary" id="summary" aria-live="polite">
+          <h3>Ваша бронь</h3>
+          <div id="summaryBody"></div>
+          <button class="btn btn-lg btn-block" type="submit" form="bookingForm" id="bookingSubmit" disabled>Отправить заявку</button>
+          <p class="hint" id="bookingNote"></p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== АФИША ===================== -->
+  <section class="section" id="events">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">05 · Афиша</span>
+        <h2>Что будет на Холодной горе</h2>
+        <p>Турниры, праздники и семейные дни. Записывайтесь заранее — места на турниры ограничены.</p>
+      </header>
+
+      <div class="chips reveal" id="eventFilters" role="group" aria-label="Фильтр мероприятий"></div>
+      <div class="events-grid" id="eventsGrid" aria-live="polite">
+        <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== О МЕСТЕ ===================== -->
+  <section class="section section-alt" id="about">
+    <div class="wrap about">
+      <header class="section-head reveal">
+        <span class="kicker">06 · О месте</span>
+        <h2>Гора, на которой всегда прохладно</h2>
+      </header>
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <p>Холодная гора — это высокое лесистое плато в Белогорском районе Крыма. Здесь заметно прохладнее, чем на побережье, пахнет хвоей и нагретой на солнце землёй, а вокруг — только лес и небо.</p>
+          <p>По открытым источникам, у этого места богатая история: в 1956 году здесь основали охотничье хозяйство, где разводили фазанов. С тех пор сюда приезжают за тишиной, природой и охотничьим духом. Сегодня к этому добавился современный стенд.</p>
+          <ul class="ticks">
+            <li>Лес и тишина вместо городского шума</li>
+            <li>Прохладно летом, красиво осенью, снежно зимой</li>
+            <li>Стенд, домики и мероприятия — на одной территории</li>
+          </ul>
+        </div>
+        <div class="about-visual reveal" aria-hidden="true">
+          <div class="contour"></div>
+          <div class="badge-1956"><b>1956</b><span>основано охотничье хозяйство</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== КОНТАКТЫ ===================== -->
+  <section class="section" id="contacts">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <span class="kicker">07 · Контакты</span>
+        <h2>Приезжайте — мы рады гостям</h2>
+      </header>
+
+      <div class="contacts-grid reveal">
+        <div class="contact-card">
+          <h3>Связаться</h3>
+          <p class="contact-phone"><a href="tel:{{phoneHref}}">{{phone}}</a></p>
+          <p class="contact-extra" id="contactExtra"></p>
+          <p class="muted">{{hours}}</p>
+          <button class="btn" type="button" data-request="question">Задать вопрос</button>
+        </div>
+        <div class="contact-card">
+          <h3>Как добраться</h3>
+          <address>{{address}}</address>
+          <p class="muted">Подробный маршрут и координаты ворот пришлём после записи.</p>
+          <a class="btn btn-ghost" href="{{mapUrl}}" target="_blank" rel="noopener">Открыть на карте</a>
+        </div>
+        <div class="contact-card contact-cta">
+          <h3>Готовы приехать?</h3>
+          <p>Запишитесь на стрельбу или забронируйте домик — ответим в течение дня.</p>
+          <div class="cta-row">
+            <button class="btn" type="button" data-request="shooting">Записаться на стрельбу</button>
+            <a class="btn btn-ghost" href="#houses">Домики</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot">
+    <div>
+      <p class="foot-brand">{{siteName}}</p>
+      <p class="muted">{{region}}</p>
+    </div>
+    <nav class="foot-nav" aria-label="Ссылки внизу">
+      <a href="#shooting">Стрельба</a><a href="#houses">Домики</a><a href="#events">Афиша</a><a href="/privacy.html">Конфиденциальность</a>
+    </nav>
+    <p class="muted foot-note">Стрельба проводится только в присутствии инструктора. Подробности уточняйте при записи.</p>
+  </div>
+</footer>
+
+<!-- ===================== ДИАЛОГ ЗАПИСИ ===================== -->
+<dialog class="dialog" id="requestDialog" aria-labelledby="reqTitle">
+  <form id="requestForm" novalidate>
+    <button class="dialog-close" type="button" id="reqClose" aria-label="Закрыть">×</button>
+    <h2 id="reqTitle">Запись на стрельбу</h2>
+    <p class="muted" id="reqLead">Оставьте контакты — администратор перезвонит и подтвердит время.</p>
+
+    <div class="form-grid">
+      <div class="field field-wide" id="reqEventRow" hidden>
+        <label>Мероприятие</label>
+        <p class="static-value" id="reqEventName"></p>
+      </div>
+      <div class="field field-wide" id="reqPackageRow">
+        <label for="reqPackage">Пакет</label>
+        <select id="reqPackage" name="packageId"></select>
+      </div>
+      <div class="field">
+        <label for="reqName">Ваше имя</label>
+        <input id="reqName" name="name" type="text" autocomplete="name" maxlength="80" required>
+        <p class="field-error" data-error="name"></p>
+      </div>
+      <div class="field">
+        <label for="reqPhone">Телефон</label>
+        <input id="reqPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 978 123-45-67" required>
+        <p class="field-error" data-error="phone"></p>
+      </div>
+      <div class="field" id="reqDateRow">
+        <label for="reqDate">Желаемая дата <span class="opt">необязательно</span></label>
+        <input id="reqDate" name="date" type="date">
+        <p class="field-error" data-error="date"></p>
+      </div>
+      <div class="field" id="reqPeopleRow">
+        <label for="reqPeople">Человек</label>
+        <input id="reqPeople" name="people" type="number" min="1" max="50" value="2" inputmode="numeric">
+        <p class="field-error" data-error="people"></p>
+      </div>
+      <div class="field field-wide">
+        <label for="reqComment">Комментарий <span class="opt">необязательно</span></label>
+        <textarea id="reqComment" name="comment" rows="3" maxlength="1000"></textarea>
+      </div>
+    </div>
+    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="check">
+      <input type="checkbox" name="consent" required>
+      <span>Согласен на обработку персональных данных в соответствии с <a href="/privacy.html" target="_blank" rel="noopener">политикой</a></span>
+    </label>
+    <p class="field-error" data-error="consent"></p>
+    <p class="form-error" id="reqError" role="alert" hidden></p>
+    <div class="dialog-actions">
+      <button class="btn btn-lg" type="submit" id="reqSubmit">Отправить</button>
+    </div>
+  </form>
+  <div class="dialog-done" id="reqDone" hidden>
+    <div class="done-mark" aria-hidden="true">✓</div>
+    <h2>Заявка отправлена</h2>
+    <p id="reqDoneText">Мы свяжемся с вами в ближайшее время.</p>
+    <button class="btn" type="button" id="reqDoneClose">Закрыть</button>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">Для бронирования онлайн нужен JavaScript. Позвоните нам: <a href="tel:{{phoneHref}}">{{phone}}</a></p></noscript>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

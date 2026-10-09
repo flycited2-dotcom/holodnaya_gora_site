@@ -1,0 +1,28 @@
+.adm { padding: 24px 0 80px; }
+.adm-wrap { width: min(1000px, 100% - 32px); margin-inline: auto; }
+.adm-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.adm-top h1 { font-size: clamp(1.2rem, 3vw, 1.7rem); }
+.adm-login { max-width: 460px; }
+.adm-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-bottom: 10px; }
+.adm-row input, .adm-row select { flex: 1; min-width: 140px; }
+.adm-row label { display: grid; gap: 4px; font-weight: 700; font-size: 14px; color: var(--ink-2); flex: 1; min-width: 150px; }
+.adm-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.adm-tabs button { border: 1px solid var(--line-strong); background: transparent; border-radius: 999px; padding: 9px 18px; font-weight: 800; font-size: 14.5px; color: var(--ink-2); }
+.adm-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.adm-count { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 12px; text-align: center; }
+.adm-count:empty { display: none; }
+.adm-filter { margin: 0 0 16px; }
+.adm-list { display: grid; gap: 12px; }
+.adm-item { background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; display: grid; gap: 8px; }
+.adm-item.is-pending { border-color: rgba(255, 106, 26, .6); }
+.adm-item.is-cancelled { opacity: .55; }
+.adm-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; }
+.adm-head b { font-family: var(--font-display); font-size: 1.05rem; }
+.adm-badge { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.1); }
+.adm-badge.pending, .adm-badge.new { background: var(--accent); color: var(--accent-ink); }
+.adm-badge.confirmed, .adm-badge.done { background: rgba(111, 208, 140, .2); color: var(--ok); }
+.adm-badge.blocked { background: rgba(255, 211, 77, .18); color: var(--warn); }
+.adm-line { color: var(--ink-2); font-size: 15px; }
+.adm-line a { color: var(--accent-2); font-weight: 700; }
+.adm-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.adm-empty { padding: 36px; text-align: center; color: var(--ink-3); border: 1.5px dashed var(--line-strong); border-radius: 18px; }
