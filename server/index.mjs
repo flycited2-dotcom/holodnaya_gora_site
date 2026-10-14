@@ -13,6 +13,7 @@ import { createStore, makeCode } from './store.mjs';
 import { createLimiter } from './limits.mjs';
 import { createNotifier } from './notify.mjs';
 import { validateContent } from './content.mjs';
+import { maxScore } from '../public/js/scoring.js'; // те же правила очков, что и в игре
 import {
   validateBooking, validateRequest, busyNights, hasConflict, parseDate, todayIn,
 } from './booking.mjs';
@@ -48,7 +49,6 @@ const LONG_CACHE = new Set(['.woff2', '.png', '.jpg', '.jpeg', '.webp', '.avif',
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 const BAD_NAME_RE = /(хуй|хуя|хуе|пизд|бляд|блят|ебан|ебат|ебал|ебну|залуп|мудак|гандон)/i;
-const MAX_SCORE_PER_HIT = 25;
 
 export function createApp(opts = {}) {
   const env = { ...process.env, ...opts.env };
@@ -298,7 +298,7 @@ export function createApp(opts = {}) {
       if (BAD_NAME_RE.test(name)) name = 'Стрелок';
       if (score === null || hits === null || shots === null
         || score < 0 || hits < 0 || hits > round || shots < hits || shots > round * 40
-        || score > hits * MAX_SCORE_PER_HIT) {
+        || score > maxScore(hits, shots, round)) {
         throw new HttpError(422, 'Некорректный результат');
       }
       if (hits === 0) return json(res, 200, { ok: true, saved: false });

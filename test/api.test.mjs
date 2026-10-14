@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../server/index.mjs';
 import { todayIn, addDays } from '../server/booking.mjs';
+import { maxScore } from '../public/js/scoring.js';
 
 const TOKEN = 'test-admin-token';
 
@@ -169,13 +170,19 @@ test('таблица рекордов: валидные результаты с�
   assert.equal((await post(app.base, '/api/scores', { name: 'Хакер', score: 99999, hits: 20, shots: 28 })).status, 422);
   assert.equal((await post(app.base, '/api/scores', { name: 'Хакер', score: 10, hits: 99, shots: 100 })).status, 422);
   assert.equal((await post(app.base, '/api/scores', { name: 'Х', score: 10, hits: 5, shots: 2 })).status, 422);
+  // идеальный раунд с бонусами проходит, на очко больше — уже нет
+  const perfect = maxScore(25, 25, 25);
+  assert.equal((await post(app.base, '/api/scores', { name: 'Снайпер', score: perfect + 1, hits: 25, shots: 25 })).status, 422);
+  assert.equal((await post(app.base, '/api/scores', { name: 'Снайпер', score: perfect, hits: 25, shots: 25 })).status, 201);
+  assert.equal((await post(app.base, '/api/scores', { name: 'Почти', score: perfect, hits: 25, shots: 26 })).status, 422);
 
   await post(app.base, '/api/scores', { name: 'пизда', score: 100, hits: 8, shots: 10 });
   const board = await (await fetch(`${app.base}/api/scores`)).json();
-  assert.equal(board.allTime[0].name, 'Саша');
-  assert.equal(board.allTime[0].score, 300);
-  assert.equal(board.allTime[1].name, 'Стрелок'); // нецензурное имя заменено
-  assert.equal(board.month.length, 2);
+  assert.equal(board.allTime[0].name, 'Снайпер');
+  assert.equal(board.allTime[1].name, 'Саша');
+  assert.equal(board.allTime[1].score, 300);
+  assert.equal(board.allTime[2].name, 'Стрелок'); // нецензурное имя заменено
+  assert.equal(board.month.length, 3);
 });
 
 test('статика: подстановка контактов, баннер черновика, защита от выхода из каталога', async (t) => {

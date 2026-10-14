@@ -88,6 +88,17 @@ export function playClick() {
   tone({ type: 'square', from: 520, to: 520, dur: 0.04, gain: 0.04 });
 }
 
+/** Бонус серии: быстрый восходящий перелив, тем выше, чем длиннее серия. */
+export function playStreak(streak) {
+  const base = 600 + Math.min(streak, 25) * 18;
+  [1, 1.25, 1.5].forEach((k, i) => tone({ type: 'triangle', from: base * k, to: base * k * 1.02, dur: 0.12, gain: 0.13, delay: i * 0.06 }));
+}
+
+/** Серия оборвалась: короткий нисходящий звук. */
+export function playStreakLost() {
+  tone({ type: 'sine', from: 420, to: 180, dur: 0.25, gain: 0.08 });
+}
+
 /** Финал раунда: короткая мелодия, чем лучше результат, тем длиннее. */
 export function playFinish(great) {
   const notes = great ? [523, 659, 784, 1047] : [392, 440];

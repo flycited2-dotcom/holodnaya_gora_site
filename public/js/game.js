@@ -1,14 +1,29 @@
-// Мини-игра «Тарелочки»: раунд из 25 тарелок, как на настоящем стенде.
+// Мини-игра «Тарелочки»: раунд из 25 тарелок, как на трассе спортинга — 5 станций с разными траекториями:
+// поперёк, из-за спины (прямо и по диагоналям), «заяц» по земле, сверху и «свеча», финал вперемешку с дуплетами.
 // Вся логика живёт в «виртуальных» координатах шириной VW, поэтому игра одинаково играется на любом экране.
 
 import { buildScene, drawClay } from './scene.js';
 import { $, $$, h, storage, debounce, prefersReducedMotion, track, toast, plural } from './util.js';
 import { api } from './api.js';
 import * as sound from './sound.js';
+import { RULES, KIND_BONUS, hitPoints, isPerfect } from './scoring.js';
 
 const VW = 1000;
 const COOLDOWN = 0.32;       // пауза между выстрелами, с
-const MAX_SCORE_PER_HIT = 25; // совпадает с проверкой на сервере: 10 + 5 (дальность) + 10 (серия)
+const STATION_PAUSE = 1.9;   // пауза на смену станции, с
+
+// Станции раунда. kinds — какие траектории бывают на станции, doubles — вероятность дуплета.
+const STATIONS = [
+  { name: 'Поперёк', hint: 'тарелки летят из машинок слева и справа', kinds: ['cross'] },
+  { name: 'Из-за спины', hint: 'вылетают сзади и уходят вдаль — прямо и по диагонали', kinds: ['outgoer', 'diagL', 'diagR'] },
+  { name: 'Заяц', hint: 'тарелка катится и подпрыгивает по земле', kinds: ['rabbit'] },
+  { name: 'Сверху', hint: 'летят на вас над головой и «свечой» вверх', kinds: ['overhead', 'teal'] },
+  { name: 'Финал', hint: 'всё вперемешку и дуплеты', kinds: ['cross', 'outgoer', 'diagL', 'diagR', 'rabbit', 'overhead', 'teal'], doubles: 0.35 },
+];
+const KIND_LABEL = {
+  cross: 'Поперёк', outgoer: 'Из-за спины', diagL: 'По диагонали ←', diagR: 'По диагонали →',
+  rabbit: 'Заяц!', overhead: 'Сверху!', teal: 'Свеча!',
+};
 
 const RANKS = [
   { min: 0, name: 'Пока наблюдатель', text: 'Не расстраивайтесь: первые тарелки у всех летят мимо.' },
@@ -18,7 +33,14 @@ const RANKS = [
   { min: 20, name: 'Мастер стенда', text: 'Серьёзный результат! Реальный стенд вас ждёт.' },
   { min: 24, name: 'Снайпер Холодной горы', text: 'Почти идеально. Приезжайте — покажете это вживую.' },
 ];
-const rankFor = (hits) => [...RANKS].reverse().find((r) => hits >= r.min);
+const PERFECT_RANK = { name: 'Снайпер Холодной горы', text: 'Идеальный раунд! Приезжайте — покажете это вживую.' };
+const rankFor = (hits, round) => (hits === round ? PERFECT_RANK : [...RANKS].reverse().find((r) => hits >= r.min));
+
+/** Разбить раунд на станции: 25 → 5×5, 10 → 2×5 и т. п. */
+function stationCounts(round) {
+  const n = STATIONS.length;
+  return STATIONS.map((_, i) => Math.floor(round / n) + (i >= n - (round % n) ? 1 : 0));
+}
 
 export function initGame(content) {
   const stage = $('#gameStage');
@@ -26,6 +48,7 @@ export function initGame(content) {
   if (!stage || !canvas) return;
 
   const ROUND = content.game?.roundSize ?? 25;
+  const COUNTS = stationCounts(ROUND);
   const ctx = canvas.getContext('2d');
   const reduced = prefersReducedMotion();
   const overlay = $('#gameOverlay');
@@ -39,6 +62,8 @@ export function initGame(content) {
 
   const rand = Math.random;
   const between = (a, b) => a + rand() * (b - a);
+  const pick = (list) => list[Math.floor(rand() * list.length)];
+  const easeOut = (p) => 1 - (1 - p) ** 2;
 
   let dpr = 1; let cssW = 0; let cssH = 0; let scale = 1; let vh = 625;
   let bg = null;
@@ -48,9 +73,12 @@ export function initGame(content) {
   function freshState() {
     return {
       mode: 'idle', // idle | playing | paused | done
-      targets: [], particles: [], popups: [],
+      targets: [], particles: [], popups: [], banners: [],
       spawned: 0, resolved: 0, hits: 0, shots: 0, score: 0, combo: 0, bestCombo: 0,
-      nextSpawn: 1.2, startDelay: 1.1, cooldown: 0, recoil: 0, flash: 0, shake: 0,
+      hitPts: 0, streakPts: 0, perfectPts: 0,
+      station: 0, stationSpawned: 0, stationPause: 0, awaitStation: false,
+      stationHits: STATIONS.map(() => 0), seenKinds: new Set(),
+      nextSpawn: 0.3, cooldown: 0, recoil: 0, flash: 0, shake: 0,
       aim: { x: VW / 2, y: vh * 0.42 }, pendingSubmit: true,
     };
   }
@@ -86,8 +114,11 @@ export function initGame(content) {
     hud.score.textContent = S.score;
     hud.target.textContent = `${Math.min(S.spawned, ROUND)} / ${ROUND}`;
     hud.hits.textContent = S.hits;
-    hud.combo.textContent = `×${Math.max(1, S.combo)}`;
+    // серия и надбавка, которую получит следующее попадание
+    const next = Math.min(RULES.streakMax, S.combo * RULES.streakStep);
+    hud.combo.textContent = S.combo >= 1 ? `×${S.combo}${next ? ` · +${next}` : ''}` : '×1';
     hud.comboWrap.classList.toggle('hot', S.combo >= 3);
+    hud.comboWrap.classList.toggle('fire', S.combo >= RULES.milestoneEvery);
   }
 
   // ---------- оверлей ----------
@@ -102,7 +133,12 @@ export function initGame(content) {
     const best = storage.get('hg_best');
     return h('div', { class: 'ov-card' },
       h('div', { class: 'ov-title' }, 'Тарелочки'),
-      h('p', { class: 'ov-text' }, `Раунд из ${ROUND} тарелок. Нажимайте на летящие мишени — чем дальше тарелка и длиннее серия попаданий, тем больше очков.`),
+      h('p', { class: 'ov-text' }, `Раунд из ${ROUND} тарелок — как на трассе спортинга: ${STATIONS.length} станций, на каждой тарелки летят по-своему.`),
+      h('ol', { class: 'ov-stations-list', 'aria-label': 'Станции' }, STATIONS.map((s, i) => h('li', { title: s.hint }, h('b', {}, i + 1), s.name))),
+      h('ul', { class: 'ov-rules' },
+        h('li', {}, h('b', {}, 'Серия'), ` — каждое попадание подряд +${RULES.streakStep}, до +${RULES.streakMax}`),
+        h('li', {}, h('b', {}, `${RULES.milestoneEvery} подряд`), ` — бонус +${RULES.milestoneEvery * RULES.milestonePer}, 10 подряд +${10 * RULES.milestonePer}…`),
+        h('li', {}, h('b', {}, 'Без промахов'), ` — +${RULES.perfect} за чистый раунд`)),
       h('div', { class: 'ov-actions' },
         h('button', { class: 'btn btn-lg', type: 'button', onclick: startRound }, 'Начать раунд')),
       best ? h('p', { class: 'ov-note' }, `Ваш рекорд: ${best.score} очков, ${best.hits} из ${ROUND}`) : null,
@@ -119,7 +155,7 @@ export function initGame(content) {
   }
 
   function resultCard() {
-    const rank = rankFor(S.hits);
+    const rank = rankFor(S.hits, ROUND);
     const acc = S.shots ? Math.round((S.hits / S.shots) * 100) : 0;
     const prevBest = storage.get('hg_best');
     const isRecord = !prevBest || S.score > prevBest.score;
@@ -162,6 +198,13 @@ export function initGame(content) {
         h('div', {}, h('b', {}, `${acc}%`), h('span', {}, 'точность')),
         h('div', {}, h('b', {}, `×${Math.max(S.bestCombo, 1)}`), h('span', {}, 'лучшая серия')),
       ),
+      h('dl', { class: 'ov-breakdown' },
+        h('div', {}, h('dt', {}, 'Попадания'), h('dd', {}, `${S.hitPts}`)),
+        h('div', {}, h('dt', {}, 'Бонусы за серии'), h('dd', {}, `+${S.streakPts}`)),
+        S.perfectPts ? h('div', { class: 'is-perfect' }, h('dt', {}, 'Без промахов'), h('dd', {}, `+${S.perfectPts}`)) : null),
+      h('ul', { class: 'ov-stations' }, STATIONS.map((s, i) => (COUNTS[i]
+        ? h('li', { class: S.stationHits[i] === COUNTS[i] ? 'is-clean' : '' }, h('span', {}, s.name), h('b', {}, `${S.stationHits[i]}/${COUNTS[i]}`))
+        : null))),
       canSave ? form : null,
       status,
       h('div', { class: 'ov-actions' },
@@ -178,8 +221,8 @@ export function initGame(content) {
     stage.classList.add('is-playing');
     hideOverlay();
     btnPause.hidden = false;
+    announceStation();
     renderHud();
-    live.textContent = 'Раунд начался';
     track('game_start');
     stage.focus({ preventScroll: true });
     loop();
@@ -205,35 +248,104 @@ export function initGame(content) {
     S.mode = 'done';
     stage.classList.remove('is-playing');
     btnPause.hidden = true;
-    const great = S.hits >= 15;
-    sound.playFinish(great);
+    if (isPerfect(S.hits, S.shots, ROUND)) {
+      S.perfectPts = RULES.perfect;
+      S.score += S.perfectPts;
+      S.banners.push({ text: 'Без промахов!', sub: `+${S.perfectPts}`, life: 0, max: 2.2, big: true });
+      sound.playStreak(25);
+      renderHud();
+    }
+    sound.playFinish(S.hits >= 15);
     track('game_finish', { hits: S.hits, score: S.score });
     live.textContent = `Раунд окончен: ${S.hits} из ${ROUND}, ${S.score} очков`;
-    setTimeout(() => { if (S.mode === 'done') showOverlay(resultCard()); }, 450);
+    setTimeout(() => { if (S.mode === 'done') showOverlay(resultCard()); }, S.perfectPts ? 1900 : 450);
+  }
+
+  // ---------- станции ----------
+  function announceStation() {
+    const st = STATIONS[S.station];
+    S.stationPause = STATION_PAUSE;
+    S.nextSpawn = 0.25;
+    S.banners.push({ text: `Станция ${S.station + 1}`, sub: st.name, hint: st.hint, life: 0, max: STATION_PAUSE + 0.2, station: true });
+    live.textContent = `Станция ${S.station + 1}: ${st.name} — ${st.hint}`;
   }
 
   // ---------- мишени ----------
-  function spawnTarget() {
+  // Каждая траектория — функция от доли пути p (0…1): где тарелка и какого она размера (r — «близость»).
+  function spawnTarget(kind) {
     const i = S.spawned++;
-    const level = i / (ROUND - 1);
-    const fromLeft = rand() < 0.5;
+    S.stationSpawned++;
+    const level = i / Math.max(1, ROUND - 1);
     const r0 = Math.max(32, 17 / scale);
-    S.targets.push({
-      x0: fromLeft ? VW * 0.08 : VW * 0.92,
-      tx: VW * (fromLeft ? between(0.5, 0.9) : between(0.1, 0.5)),
-      y0: vh * 0.8,
-      apex: vh * between(0.14, 0.42),
-      T: Math.max(1.55, 3.0 - level * 1.0) + between(-0.15, 0.25),
-      age: 0, r0, spin: between(0, 6), vspin: between(6, 11) * (rand() < 0.5 ? -1 : 1),
-      x: 0, y: 0, r: r0, p: 0,
-    });
+    const t = { kind, station: S.station, age: 0, r0, spin: between(0, 6), vspin: between(6, 11) * (rand() < 0.5 ? -1 : 1), x: 0, y: 0, r: r0, p: 0 };
+
+    if (kind === 'cross') {
+      const fromLeft = rand() < 0.5;
+      Object.assign(t, {
+        x0: fromLeft ? VW * 0.08 : VW * 0.92, tx: VW * (fromLeft ? between(0.5, 0.9) : between(0.1, 0.5)),
+        y0: vh * 0.8, apex: vh * between(0.14, 0.42), T: Math.max(1.55, 3.0 - level * 1.0) + between(-0.15, 0.25),
+      });
+    } else if (kind === 'outgoer' || kind === 'diagL' || kind === 'diagR') {
+      const tx = { outgoer: between(0.42, 0.58), diagL: between(0.1, 0.24), diagR: between(0.76, 0.9) }[kind];
+      Object.assign(t, {
+        x0: VW * (0.5 + between(-0.08, 0.08)), tx: VW * tx, y0: vh * 1.04, y1: vh * between(0.16, 0.3),
+        T: Math.max(1.35, 2.0 - level * 0.5) + between(-0.1, 0.2),
+      });
+    } else if (kind === 'rabbit') {
+      const fromLeft = rand() < 0.5;
+      Object.assign(t, {
+        x0: fromLeft ? -VW * 0.03 : VW * 1.03, tx: fromLeft ? VW * 1.03 : -VW * 0.03, y0: vh * 0.87,
+        hops: 3 + Math.floor(rand() * 3), hop: vh * between(0.03, 0.07), T: Math.max(1.8, 2.6 - level * 0.6) + between(-0.1, 0.2),
+        vspin: (fromLeft ? 1 : -1) * between(14, 20),
+      });
+    } else if (kind === 'overhead') {
+      const x0 = VW * between(0.32, 0.68);
+      Object.assign(t, { x0, tx: x0 + VW * between(-0.16, 0.16), y0: vh * between(0.26, 0.38), T: Math.max(1.5, 2.3 - level * 0.5) + between(-0.1, 0.2) });
+    } else if (kind === 'teal') {
+      const x0 = VW * between(0.25, 0.75);
+      Object.assign(t, { x0, tx: x0 + VW * between(-0.07, 0.07), y0: vh * 0.95, apex: vh * between(0.08, 0.2), T: Math.max(1.8, 2.6 - level * 0.5) + between(-0.1, 0.2) });
+    }
+    targetPos(t);
+    S.targets.push(t);
+
+    // первая тарелка нового вида — подпись, чтобы было понятно, откуда ждать
+    if (!S.seenKinds.has(kind)) {
+      S.seenKinds.add(kind);
+      const lx = Math.min(VW - 150, Math.max(150, kind === 'rabbit' ? VW / 2 : t.x));
+      const ly = Math.min(vh * 0.78, Math.max(vh * 0.2, kind === 'rabbit' ? vh * 0.72 : t.y - 40));
+      S.popups.push({ x: lx, y: ly, text: KIND_LABEL[kind], life: 0, max: 1.3, label: true });
+    }
   }
 
   function targetPos(t) {
-    t.p = t.age / t.T;
-    t.x = t.x0 + (t.tx - t.x0) * t.p;
-    t.y = t.apex + 4 * (t.y0 - t.apex) * (t.p - 0.5) ** 2;
-    t.r = t.r0 * (1 - 0.5 * t.p);
+    const p = Math.min(1, t.age / t.T);
+    t.p = p;
+    if (t.kind === 'cross') {
+      t.x = t.x0 + (t.tx - t.x0) * p;
+      t.y = t.apex + 4 * (t.y0 - t.apex) * (p - 0.5) ** 2;
+      t.r = t.r0 * (1 - 0.5 * p);
+    } else if (t.kind === 'outgoer' || t.kind === 'diagL' || t.kind === 'diagR') {
+      // из-за спины: сначала крупная и близкая, быстро уходит вдаль и уменьшается, в конце проседает
+      const e = easeOut(p);
+      t.x = t.x0 + (t.tx - t.x0) * e;
+      t.y = t.y0 + (t.y1 - t.y0) * e + vh * 0.14 * p ** 3;
+      t.r = t.r0 * (1.75 - 1.4 * e);
+    } else if (t.kind === 'rabbit') {
+      // заяц: катится по земле и подпрыгивает на кочках
+      t.x = t.x0 + (t.tx - t.x0) * p;
+      t.y = t.y0 - Math.abs(Math.sin(p * Math.PI * t.hops)) * t.hop;
+      t.r = t.r0 * 0.85;
+    } else if (t.kind === 'overhead') {
+      // сверху: издалека летит на стрелка, растёт и уходит над головой
+      t.x = t.x0 + (t.tx - t.x0) * p;
+      t.y = t.y0 + (-vh * 0.22 - t.y0) * p ** 1.7;
+      t.r = t.r0 * (0.35 + 1.3 * p ** 1.6);
+    } else if (t.kind === 'teal') {
+      // свеча: вертикально вверх и обратно
+      t.x = t.x0 + (t.tx - t.x0) * p;
+      t.y = t.y0 - 4 * (t.y0 - t.apex) * p * (1 - p);
+      t.r = t.r0 * 0.8 * (1 - 0.25 * Math.sin(p * Math.PI));
+    }
   }
 
   // ---------- частицы ----------
@@ -269,7 +381,7 @@ export function initGame(content) {
 
   // ---------- выстрел ----------
   function fire(vx, vy) {
-    if (S.mode !== 'playing' || S.startDelay > 0) return;
+    if (S.mode !== 'playing' || S.stationPause > 0) return; // на смене станции не стреляем
     if (S.cooldown > 0) return;
     S.shots++;
     S.cooldown = COOLDOWN;
@@ -289,17 +401,25 @@ export function initGame(content) {
     if (best) {
       S.combo++;
       S.bestCombo = Math.max(S.bestCombo, S.combo);
-      const pts = Math.min(MAX_SCORE_PER_HIT, 10 + Math.round(best.p * 5) + Math.min(S.combo - 1, 5) * 2);
-      S.score += pts;
+      const pts = hitPoints(best.p, S.combo, best.kind);
+      S.score += pts.total;
+      S.hitPts += pts.base;
+      S.streakPts += pts.streakBonus + pts.milestone;
       S.hits++;
       S.resolved++;
-      S.popups.push({ x: best.x, y: best.y - best.r, text: `+${pts}`, life: 0, max: 0.9, hot: S.combo >= 3 });
+      S.stationHits[best.station]++;
+      S.popups.push({ x: best.x, y: best.y - best.r, text: `+${pts.base + pts.streakBonus}`, life: 0, max: 0.9, hot: S.combo >= 3 });
       burstShards(best);
       sound.playHit();
+      if (pts.milestone) {
+        S.banners.push({ text: `Серия ${S.combo}!`, sub: `+${pts.milestone}`, life: 0, max: 1.5 });
+        sound.playStreak(S.combo);
+      }
       S.targets.splice(S.targets.indexOf(best), 1);
-      live.textContent = `Попадание, ${S.hits} из ${ROUND}`;
+      live.textContent = `Попадание, ${S.hits} из ${ROUND}${S.combo >= 3 ? `, серия ${S.combo}` : ''}`;
     } else {
-      if (S.combo > 0) S.popups.push({ x: vx, y: vy - 18, text: 'Мимо', life: 0, max: 0.6, miss: true });
+      if (S.combo > 0) S.popups.push({ x: vx, y: vy - 18, text: S.combo >= 3 ? `Серия ${S.combo} сорвалась` : 'Мимо', life: 0, max: 0.8, miss: true });
+      if (S.combo >= 3) sound.playStreakLost();
       S.combo = 0;
       sound.playMiss();
     }
@@ -308,22 +428,33 @@ export function initGame(content) {
 
   // ---------- обновление ----------
   function update(dt) {
-    if (S.startDelay > 0) { S.startDelay -= dt; return; }
     S.cooldown = Math.max(0, S.cooldown - dt);
     S.recoil = Math.max(0, S.recoil - dt * 5);
     S.flash = Math.max(0, S.flash - dt * 7);
     S.shake = Math.max(0, S.shake - dt * 6);
 
-    if (S.spawned < ROUND) {
+    if (S.stationPause > 0) {
+      S.stationPause -= dt;
+    } else if (S.spawned < ROUND && !S.awaitStation) {
       S.nextSpawn -= dt;
       if (S.nextSpawn <= 0) {
-        const level = S.spawned / (ROUND - 1);
-        const double = S.spawned >= 12 && S.spawned < ROUND - 1 && rand() < 0.22;
-        spawnTarget();
-        if (double) spawnTarget();
-        S.nextSpawn = Math.max(0.7, 1.45 - level * 0.6) * (double ? 1.4 : 1) + between(0, 0.5);
+        const st = STATIONS[S.station];
+        const left = COUNTS[S.station] - S.stationSpawned;
+        const double = left >= 2 && st.doubles && rand() < st.doubles;
+        spawnTarget(pick(st.kinds));
+        if (double) spawnTarget(pick(st.kinds));
+        const level = S.spawned / Math.max(1, ROUND - 1);
+        S.nextSpawn = Math.max(0.75, 1.5 - level * 0.6) * (double ? 1.5 : 1) + between(0, 0.5);
+        if (S.stationSpawned >= COUNTS[S.station]) S.awaitStation = true;
         renderHud();
       }
+    }
+    // станция отстреляна и все её тарелки улетели — переходим на следующую
+    if (S.awaitStation && S.targets.length === 0 && S.spawned < ROUND) {
+      do { S.station++; } while (S.station < STATIONS.length - 1 && !COUNTS[S.station]);
+      S.stationSpawned = 0;
+      S.awaitStation = false;
+      announceStation();
     }
 
     for (let i = S.targets.length - 1; i >= 0; i--) {
@@ -331,9 +462,13 @@ export function initGame(content) {
       t.age += dt;
       t.spin += t.vspin * dt;
       targetPos(t);
-      if (t.p >= 1) { // не сбили — тарелка упала
+      if (t.p >= 1) { // не сбили — тарелка ушла, серия обрывается
         S.targets.splice(i, 1);
         S.resolved++;
+        if (S.combo >= 3) {
+          S.popups.push({ x: Math.min(VW - 160, Math.max(160, t.x)), y: Math.min(vh * 0.75, Math.max(vh * 0.2, t.y)), text: 'Тарелка ушла', life: 0, max: 0.9, miss: true });
+          sound.playStreakLost();
+        }
         S.combo = 0;
         renderHud();
       }
@@ -353,11 +488,28 @@ export function initGame(content) {
       p.life += dt;
       if (p.life >= p.max) S.popups.splice(i, 1);
     }
+    tickBanners(dt);
 
     if (S.spawned >= ROUND && S.targets.length === 0 && S.mode === 'playing') finish();
   }
 
   // ---------- отрисовка ----------
+  /** «Заяц» катится на ребре — рисуем диск сбоку, с вращающейся полосой. */
+  function drawRabbit(x, y, r, spin) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.beginPath(); ctx.ellipse(0, r * 0.95, r * 0.6, r * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+    const g = ctx.createLinearGradient(-r * 0.3, -r, r * 0.3, r);
+    g.addColorStop(0, '#ffc27d'); g.addColorStop(0.5, '#ff6a1a'); g.addColorStop(1, '#b84305');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.ellipse(0, 0, r * 0.34, r, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(120,40,5,.8)'; ctx.lineWidth = Math.max(2, r * 0.1);
+    const s = Math.sin(spin) * r * 0.85;
+    ctx.beginPath(); ctx.moveTo(-r * 0.3, s); ctx.lineTo(r * 0.3, s); ctx.stroke();
+    ctx.restore();
+  }
+
   function draw() {
     if (!bg) return;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -367,8 +519,10 @@ export function initGame(content) {
     ctx.drawImage(bg, 0, 0);
     ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
 
-    for (const t of S.targets) {
-      drawClay(ctx, t.x, t.y, t.r, t.spin);
+    // дальние (мелкие) тарелки рисуем первыми, близкие — поверх
+    for (const t of [...S.targets].sort((a, b) => a.r - b.r)) {
+      if (t.kind === 'rabbit') drawRabbit(t.x, t.y, t.r, t.spin);
+      else drawClay(ctx, t.x, t.y, t.r, t.spin);
     }
 
     for (const p of S.particles) {
@@ -395,13 +549,14 @@ export function initGame(content) {
     for (const p of S.popups) {
       const k = p.life / p.max;
       ctx.globalAlpha = 1 - k * k;
-      ctx.font = `800 ${p.miss ? 22 : 30}px Unbounded, sans-serif`;
-      ctx.fillStyle = p.miss ? '#9fb0a5' : p.hot ? '#ffd34d' : '#fff';
+      ctx.font = `800 ${Math.round((p.miss ? 22 : p.label ? 26 : 30) * Math.min(1.6, uiBoost()))}px Unbounded, sans-serif`;
+      ctx.fillStyle = p.miss ? '#9fb0a5' : p.label ? '#9ee6b0' : p.hot ? '#ffd34d' : '#fff';
       ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 5;
-      const y = p.y - k * 50;
+      const y = p.y - k * (p.label ? 20 : 50);
       ctx.strokeText(p.text, p.x, y); ctx.fillText(p.text, p.x, y);
     }
     ctx.globalAlpha = 1;
+    drawBanners();
 
     if (S.flash > 0) {
       const g = ctx.createRadialGradient(VW / 2, vh, 10, VW / 2, vh, vh * 1.1);
@@ -410,15 +565,53 @@ export function initGame(content) {
       ctx.fillStyle = g; ctx.fillRect(0, 0, VW, vh);
     }
 
-    if (S.mode === 'playing' && S.startDelay > 0) {
-      ctx.globalAlpha = Math.min(1, S.startDelay * 2);
-      ctx.fillStyle = '#fff'; ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 8;
-      ctx.font = '800 56px Unbounded, sans-serif';
-      ctx.strokeText('К стрельбе!', VW / 2, vh * 0.4); ctx.fillText('К стрельбе!', VW / 2, vh * 0.4);
-      ctx.globalAlpha = 1;
-    }
-
     if (S.mode === 'playing') drawCrosshair();
+  }
+
+  // ---------- баннеры: «Станция 2 · Из-за спины», «Серия 10! +50», «Без промахов!» ----------
+  /** На узком экране виртуальное поле сильно ужато — надписи крупнее, чтобы читались. */
+  const uiBoost = () => Math.min(1.9, Math.max(1, 0.62 / scale));
+
+  function tickBanners(dt) {
+    for (const b of S.banners) b.life += dt;
+    S.banners = S.banners.filter((b) => b.life < b.max);
+  }
+
+  function drawBanners() {
+    const b = S.banners[S.banners.length - 1];
+    if (!b) return;
+    const k = b.life / b.max;
+    const pop = reduced ? 1 : Math.min(1, b.life / 0.18);
+    const bump = reduced || b.station ? 0 : Math.sin(Math.min(1, b.life / 0.3) * Math.PI) * 0.12;
+    const sc = (0.6 + 0.4 * pop + bump) * uiBoost();
+    ctx.save();
+    ctx.globalAlpha = k > 0.75 ? (1 - k) / 0.25 : 1;
+    ctx.translate(VW / 2, vh * (b.station ? 0.36 : 0.3) + (uiBoost() - 1) * 90); // на телефоне ниже, под HUD
+    ctx.scale(sc, sc);
+    ctx.textAlign = 'center';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,.6)';
+    ctx.lineWidth = 10;
+    if (b.station) {
+      ctx.font = '800 30px Unbounded, sans-serif';
+      ctx.fillStyle = '#9ee6b0';
+      ctx.strokeText(b.text, 0, -46); ctx.fillText(b.text, 0, -46);
+      ctx.font = '800 58px Unbounded, sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.strokeText(b.sub, 0, 16); ctx.fillText(b.sub, 0, 16);
+      ctx.font = '700 24px Manrope, sans-serif';
+      ctx.fillStyle = '#e6ece4';
+      ctx.lineWidth = 6;
+      ctx.strokeText(b.hint, 0, 58); ctx.fillText(b.hint, 0, 58);
+    } else {
+      ctx.font = `800 ${b.big ? 64 : 52}px Unbounded, sans-serif`;
+      ctx.fillStyle = '#ffd34d';
+      ctx.strokeText(b.text, 0, 0); ctx.fillText(b.text, 0, 0);
+      ctx.font = `800 ${b.big ? 46 : 38}px Unbounded, sans-serif`;
+      ctx.fillStyle = '#ff8a3d';
+      ctx.strokeText(b.sub, 0, b.big ? 62 : 52); ctx.fillText(b.sub, 0, b.big ? 62 : 52);
+    }
+    ctx.restore();
   }
 
   function drawCrosshair() {
@@ -429,7 +622,7 @@ export function initGame(content) {
     ctx.lineWidth = 3; ctx.lineCap = 'round';
     ctx.strokeStyle = 'rgba(0,0,0,.5)';
     crosshairPath(x, y, r); ctx.lineWidth = 6; ctx.stroke();
-    ctx.lineWidth = 3; ctx.strokeStyle = S.cooldown > 0 ? 'rgba(255,255,255,.55)' : '#fff';
+    ctx.lineWidth = 3; ctx.strokeStyle = S.cooldown > 0 || S.stationPause > 0 ? 'rgba(255,255,255,.55)' : '#fff';
     crosshairPath(x, y, r); ctx.stroke();
     if (S.cooldown > 0) { // кольцо перезарядки
       ctx.strokeStyle = '#ff6a1a'; ctx.lineWidth = 4;
@@ -456,14 +649,15 @@ export function initGame(content) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       if (S.mode === 'playing') update(dt);
-      else if (S.particles.length || S.popups.length) { // доигрываем эффекты после финала
+      else if (S.particles.length || S.popups.length || S.banners.length) { // доигрываем эффекты после финала
         for (const p of S.particles) { p.life += dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.type === 'shard') p.vy += 900 * dt; }
         S.particles = S.particles.filter((p) => p.life < p.max);
         for (const p of S.popups) p.life += dt;
         S.popups = S.popups.filter((p) => p.life < p.max);
+        tickBanners(dt);
       }
       draw();
-      const busy = S.mode === 'playing' || S.particles.length || S.popups.length;
+      const busy = S.mode === 'playing' || S.particles.length || S.popups.length || S.banners.length;
       if (busy && visible && !document.hidden) rafId = requestAnimationFrame(frame);
       else rafId = 0;
     };
@@ -574,5 +768,9 @@ export function initGame(content) {
   renderHud();
   resize();
   loadBoard();
-}
 
+  // для автотестов в браузере: ?gametest — доступ к состоянию игры
+  if (new URLSearchParams(location.search).has('gametest')) {
+    window.__game = { state: () => S, fire, startRound, loop, KIND_BONUS };
+  }
+}

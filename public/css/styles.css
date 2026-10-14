@@ -243,6 +243,24 @@ kbd { font-family: var(--font-body); font-weight: 800; font-size: 12px; padding:
 .ov-form { display: flex; gap: 8px; margin: 14px 0; }
 .ov-form input { flex: 1; min-width: 0; }
 .ov-note { font-size: 14px; color: var(--ink-3); margin: 10px 0 0; }
+.game-overlay { overflow-y: auto; }
+.ov-card { margin: auto 0; }
+.ov-stations-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -6px 0 14px; padding: 0; list-style: none; }
+.ov-stations-list li { display: flex; align-items: center; gap: 6px; padding: 4px 11px 4px 4px; border-radius: 999px; background: rgba(255,255,255,.07); font-size: 13px; font-weight: 700; color: var(--ink-2); }
+.ov-stations-list b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 11.5px; }
+.ov-rules { text-align: left; margin: 0 auto 16px; list-style: none; font-size: 14px; color: var(--ink-2); display: grid; gap: 4px; max-width: 420px; }
+.ov-rules b { color: var(--ink); }
+.ov-rules { padding: 10px 14px; border-radius: 14px; background: rgba(255,106,26,.1); border: 1px solid rgba(255,106,26,.3); }
+.ov-breakdown { display: grid; gap: 4px; margin: 0 auto 14px; max-width: 320px; font-size: 14.5px; }
+.ov-breakdown div { display: flex; justify-content: space-between; gap: 12px; }
+.ov-breakdown dt { color: var(--ink-3); }
+.ov-breakdown dd { margin: 0; font-weight: 800; }
+.ov-breakdown .is-perfect dd, .ov-breakdown .is-perfect dt { color: var(--warn); }
+.ov-stations { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+.ov-stations li { display: flex; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.06); font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.ov-stations li.is-clean { background: rgba(111,208,140,.16); color: var(--ok); }
+.hud-combo.fire { border-color: var(--warn); box-shadow: 0 0 30px -2px rgba(255,211,77,.7); }
+.hud-combo.fire b { color: var(--warn); }
 
 .board { background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
 .board h3 { font-size: 1.15rem; margin-bottom: 14px; }
