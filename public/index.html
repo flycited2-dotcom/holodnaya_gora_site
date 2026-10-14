@@ -335,6 +335,51 @@
         <div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div><div class="skeleton" aria-hidden="true"></div>
       </div>
 
+      <!-- Домик в 3D: появляется, только если браузер умеет WebGL (public/js/tour.js) -->
+      <section class="tour" id="tour" aria-labelledby="tourTitle" hidden>
+        <div class="tour-head">
+          <h3 id="tourTitle">Осмотрите домик в 3D</h3>
+          <button class="btn btn-sm btn-ghost" type="button" id="tourDates">Выбрать даты ↓</button>
+        </div>
+        <div class="tour-stage" id="tourStage">
+          <div class="tour-spots" id="tourSpots"></div>
+          <div class="tour-badge" id="tourBadge"></div>
+          <p class="tour-hint" id="tourHint" aria-live="polite"></p>
+          <div class="tour-pop" id="tourPop" role="dialog" aria-labelledby="tourPopTitle" hidden>
+            <button class="tour-pop-close" type="button" id="tourPopClose" aria-label="Закрыть подсказку">×</button>
+            <h4 id="tourPopTitle"></h4>
+            <p id="tourPopText"></p>
+            <button class="btn btn-sm btn-ghost" type="button" id="tourPopNext">Следующая точка →</button>
+          </div>
+          <div class="tour-poster" id="tourPoster">
+            <div class="tour-spinner" aria-hidden="true"></div>
+            <p id="tourPosterText">Домик в 3D загрузится, когда вы доберётесь до этого места.</p>
+            <button class="btn" type="button" id="tourStart" hidden>Показать домик в 3D</button>
+          </div>
+          <div class="tour-tools">
+            <button class="icon-btn" type="button" data-act="zoom-in" aria-label="Приблизить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button class="icon-btn" type="button" data-act="zoom-out" aria-label="Отдалить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button class="icon-btn" type="button" data-act="reset" aria-label="Вернуть вид"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 1 0 2.1-5M5 4v4h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="icon-btn" type="button" data-act="fullscreen" aria-label="На весь экран"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>
+        <div class="tour-bar">
+          <div class="tour-group" role="group" aria-label="Время суток">
+            <button type="button" data-time="0" aria-pressed="false">☀ День</button>
+            <button type="button" data-time="1" aria-pressed="true">◐ Закат</button>
+            <button type="button" data-time="2" aria-pressed="false">☾ Ночь</button>
+          </div>
+          <div class="tour-group tour-seasons" role="group" aria-label="Сезон">
+            <button type="button" data-season="auto" aria-pressed="true">Авто</button>
+            <button type="button" data-season="spring" aria-pressed="false">Весна</button>
+            <button type="button" data-season="summer" aria-pressed="false">Лето</button>
+            <button type="button" data-season="autumn" aria-pressed="false">Осень</button>
+            <button type="button" data-season="winter" aria-pressed="false">Зима</button>
+          </div>
+        </div>
+        <p class="hint tour-note" id="tourNote"></p>
+      </section>
+
       <div class="booking reveal" id="booking">
         <div class="booking-main">
           <div class="b-block">

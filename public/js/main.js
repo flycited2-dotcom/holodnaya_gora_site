@@ -5,6 +5,7 @@ import { $, $$, h, rub, toast, track } from './util.js';
 import { initHero } from './hero.js';
 import { initGame } from './game.js';
 import { initBooking } from './booking.js';
+import { initTour } from './tour.js';
 import { initRequests } from './requests.js';
 import { initEvents } from './events.js';
 import { initAnalytics } from './analytics.js';
@@ -138,6 +139,7 @@ initHero();
   initRequests(content);
   initEvents(content);
   initGame(content);
+  initTour(content); // до брони: 3D-домик слушает выбор домика и дат
   await initBooking(content);
 
   // ссылка вида /#houses, открытая по прямой ссылке, должна доскроллить после того, как контент отрисован

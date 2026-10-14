@@ -38,9 +38,12 @@ const MIME = {
   '.webmanifest': 'application/manifest+json',
   '.mp3': 'audio/mpeg',
   '.ogg': 'audio/ogg',
+  '.glb': 'model/gltf-binary',
+  '.gltf': 'model/gltf+json',
+  '.bin': 'application/octet-stream',
 };
-const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.txt', '.xml', '.webmanifest']);
-const LONG_CACHE = new Set(['.woff2', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.ico', '.mp3', '.ogg']);
+const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.svg', '.txt', '.xml', '.webmanifest', '.gltf', '.bin']);
+const LONG_CACHE = new Set(['.woff2', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.ico', '.mp3', '.ogg', '.glb']);
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -109,7 +112,7 @@ export function createApp(opts = {}) {
       "default-src 'self'",
       "script-src 'self' https://mc.yandex.ru",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https://mc.yandex.ru",
+      "img-src 'self' data: blob: https://mc.yandex.ru", // blob: — текстуры внутри GLB-моделей
       "font-src 'self'",
       "connect-src 'self' https://mc.yandex.ru",
       "object-src 'none'",

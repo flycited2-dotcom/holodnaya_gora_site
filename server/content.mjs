@@ -38,6 +38,29 @@ export function validateContent(c) {
     });
   };
 
+  // 3D-модель домика (необязательно). Без src домик рисуется кодом, hotspots тогда меняют тексты подсказок.
+  const xyz = (a) => Array.isArray(a) && a.length === 3 && a.every((n) => typeof n === 'number' && Number.isFinite(n));
+  const checkModel3d = (m, at) => {
+    if (!isObj(m)) return bad(`${at}: объект с настройками 3D (или уберите поле)`);
+    if (m.src !== undefined && (!/^\/[\w\-./]+\.(glb|gltf)$/i.test(m.src) || m.src.includes('..'))) bad(`${at}.src: путь к файлу на сайте, например /models/les.glb`);
+    if (m.kind !== undefined && !['scan', 'model'].includes(m.kind)) bad(`${at}.kind: «scan» (скан домика) или «model» (готовая модель)`);
+    if (m.scale !== undefined && !(typeof m.scale === 'number' && m.scale > 0)) bad(`${at}.scale: положительное число`);
+    if (m.rotationY !== undefined && !Number.isFinite(m.rotationY)) bad(`${at}.rotationY: угол в градусах`);
+    for (const k of ['offset', 'chimney', 'fire']) if (m[k] !== undefined && !xyz(m[k])) bad(`${at}.${k}: три числа [x, y, z] в метрах`);
+    if (m.glow !== undefined && !(Array.isArray(m.glow) && m.glow.every((s) => typeof s === 'string' && s))) bad(`${at}.glow: список имён материалов окон`);
+    if (m.hotspots === undefined) return;
+    if (!Array.isArray(m.hotspots)) return bad(`${at}.hotspots: список точек`);
+    m.hotspots.forEach((s, j) => {
+      const p = `${at}.hotspots[${j}]`;
+      if (!isObj(s)) return bad(`${p}: объект { title, text, position или anchor }`);
+      if (!s.title) bad(`${p}.title: нужен заголовок`);
+      if (s.position === undefined && !s.anchor) bad(`${p}: нужна position [x, y, z] или anchor — имя точки модели`);
+      if (s.position !== undefined && !xyz(s.position)) bad(`${p}.position: три числа [x, y, z] в метрах`);
+      if (s.normal !== undefined && !xyz(s.normal)) bad(`${p}.normal: три числа [x, y, z]`);
+      if (s.anchor !== undefined && (typeof s.anchor !== 'string' || !s.anchor || s.anchor.length > 80)) bad(`${p}.anchor: имя точки (до 80 символов)`);
+    });
+  };
+
   if (!Array.isArray(c.houses) || !c.houses.length) bad('houses: нужен хотя бы один домик');
   else {
     seen(c.houses, 'houses');
@@ -47,6 +70,7 @@ export function validateContent(c) {
       if (!Number.isInteger(h.pricePerNight) || h.pricePerNight <= 0) bad(`houses[${i}].pricePerNight: целое число больше нуля`);
       if (!Array.isArray(h.features)) bad(`houses[${i}].features: список строк (можно пустой)`);
       if (!Array.isArray(h.photos)) bad(`houses[${i}].photos: список ссылок (можно пустой)`);
+      if (h.model3d !== undefined && h.model3d !== null) checkModel3d(h.model3d, `houses[${i}].model3d`);
     });
   }
 

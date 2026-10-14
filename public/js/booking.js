@@ -247,6 +247,8 @@ export async function initBooking(content) {
     }
     $('#bookingNote').textContent = rules.note;
     updateHint();
+    // 3D-домик (tour.js) показывает выбранный домик и сезон по дате заезда
+    document.dispatchEvent(new CustomEvent('hg:booking', { detail: { houseId: st.houseId, checkIn: st.checkIn, checkOut: st.checkOut } }));
   }
   const row = (k, v) => h('div', { class: 'sum-row' }, h('span', {}, k), h('b', {}, v));
 
